@@ -16,10 +16,10 @@ type QiyeWechatClient struct {
 	token      Token
 }
 
-func NewQiyeWechatClien(baseUrl string, corpID string, corpSecret string) *QiyeWechatClient {
+func NewQiyeWechatClient(baseUrl string, corpID string, corpSecret string) *QiyeWechatClient {
 	return &QiyeWechatClient{
-		baseUrl: baseUrl, 
-		corpID: corpID, 
+		baseUrl:    baseUrl,
+		corpID:     corpID,
 		corpSecret: corpSecret,
 	}
 }

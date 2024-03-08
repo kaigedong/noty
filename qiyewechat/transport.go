@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// VerifingHandler 用于企业微信 Agent 接收信息配置验证
-func VerifingHandler(app Agent) func(c *gin.Context) {
+// VerifyingHandler 用于企业微信 Agent 接收信息配置验证
+func VerifyingHandler(app Agent) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		msgSignature := c.Query("msg_signature")
 		timestamp := c.Query("timestamp")
@@ -69,8 +69,7 @@ func MsgHandler(app Agent) func(*gin.Context) {
 		if err != nil {
 			log.Println("[ERROR]", err)
 		}
-		err = app.HandleMsg(content)
-		if err != nil {
+		if err = app.HandleMsg(content); err != nil {
 			log.Println("[ERROR]", err)
 		}
 
