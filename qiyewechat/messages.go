@@ -5,7 +5,7 @@ type Message struct {
 	Toparty                string        `json:"toparty,omitempty"`
 	Totag                  string        `json:"totag,omitempty"`
 	Msgtype                string        `json:"msgtype"`
-	Agentid                int64         `json:"agentid"`
+	Agentid                string        `json:"agentid"`
 	Text                   *TextMessage  `json:"text,omitempty"`
 	Image                  *ImageMessage `json:"image,omitempty"`
 	Safe                   int64         `json:"safe,omitempty"`

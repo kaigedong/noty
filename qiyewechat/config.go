@@ -1,7 +1,7 @@
 package qiyewechat
 
 type AgentConfig struct {
-	ID             int64            `json:"id"`
+	ID             string           `json:"id"`
 	Secret         string           `json:"secret"`
 	Token          string           `json:"token"`
 	EncodingAESKey string           `json:"encoding_aes_key"`

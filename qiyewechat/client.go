@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"time"
 )
@@ -24,7 +25,21 @@ func NewQiyeWechatClient(baseUrl string, corpID string, corpSecret string) *Qiye
 	}
 }
 
-func (c *QiyeWechatClient) RefreshToken() (err error) {
+func (c *QiyeWechatClient) RefreshToken(agentID string) {
+	if err := c.refreshToken(); err != nil {
+		log.Fatalln("[ERROR]", agentID, err)
+	}
+	ticker := time.NewTicker(time.Minute)
+	go func() {
+		for range ticker.C {
+			if err := c.refreshToken(); err != nil {
+				log.Println("[ERROR]", agentID, err)
+			}
+		}
+	}()
+}
+
+func (c *QiyeWechatClient) refreshToken() (err error) {
 	if c.token.token == "" || c.token.IsExpired() {
 		token, expireIn, err := c.GetToken(c.corpID, c.corpSecret)
 		if err != nil {
@@ -59,8 +74,7 @@ func (c QiyeWechatClient) GetToken(corpID string, corpSecret string) (token stri
 	defer resp.Body.Close()
 
 	var respData getTokenResponse
-	err = json.NewDecoder(resp.Body).Decode(&respData)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&respData); err != nil {
 		return
 	}
 
@@ -92,8 +106,7 @@ func (c QiyeWechatClient) SendMessage(msg Message) (err error) {
 	defer resp.Body.Close()
 
 	var r SendMessageResponse
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	if err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&r); err != nil {
 		return
 	}
 

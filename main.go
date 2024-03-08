@@ -5,8 +5,6 @@ import (
 	"log"
 	"noty/qiyewechat"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,27 +35,16 @@ func main() {
 
 	agentFactory := new(qiyewechat.AgentFactory)
 	for _, agent := range config.Agents {
-		strID := strconv.FormatInt(agent.ID, 10)
-
 		client := qiyewechat.NewQiyeWechatClient(config.BaseURL, config.CorpID, agent.Secret)
-		if err := client.RefreshToken(); err != nil {
-			log.Fatalln("[ERROR]", agent.ID, err)
-		}
-		ticker := time.NewTicker(time.Minute)
-		go func(agent qiyewechat.AgentConfig) {
-			for range ticker.C {
-				if err := client.RefreshToken(); err != nil {
-					log.Println("[ERROR]", agent.ID, err)
-				}
-			}
-		}(agent)
+		client.RefreshToken(agent.ID)
 
 		app := agentFactory.Create(config.CorpID, client, agent)
-		engin.GET("/qiye-wechat/agents/"+strID, qiyewechat.VerifyingHandler(app))
-		engin.POST("/qiye-wechat/agents/"+strID, qiyewechat.MsgHandler(app))
+
+		engin.GET("/qiye-wechat/agents/"+agent.ID, qiyewechat.VerifyingHandler(app))
+		engin.POST("/qiye-wechat/agents/"+agent.ID, qiyewechat.MsgHandler(app))
 
 		// 需要在 Proxy 控制该接口的访问，避免被恶意访问。Nginx 配置参考 nginx 文件夹里的 noty.conf
-		engin.POST("/qiye-wechat/text-senders/"+strID, qiyewechat.TextHandler(app))
+		engin.POST("/qiye-wechat/text-senders/"+agent.ID, qiyewechat.TextHandler(app))
 	}
 
 	if err := engin.Run(config.Addr); err != nil {
